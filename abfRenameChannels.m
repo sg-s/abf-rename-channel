@@ -55,13 +55,6 @@ for i = 1:length(all_files)
 end
 
 
-% check existence of file
-if ~exist(fn,'file')
-  error(['could not find file ' fn]);
-end
-
-
-
 
 
 
@@ -106,8 +99,8 @@ end
 		 	case 'ABF ' % ** note the blank
 		    	renameChannelsInABFv1();
 		  	case 'ABF2'
-		  		error('This is a ABFv2+ file. This script wont work.')
-		    	%renameChannelsInABFv2(file_name,old_name,new_name);
+		  		disp('ABF2 file')
+		  		renameChannelsInABFv2();
 		  otherwise
 		    error('unknown or incompatible file signature. Send this file to abf@srinivas.gs');
 		end
@@ -150,6 +143,50 @@ end
 		fclose(fid);
 	end
 
+	function renameChannelsInABFv2()
+		BLOCKSIZE=512;
+		StringsSection = ReadSectionInfo(fid,220);
+		fseek(fid,StringsSection.uBlockIndex*BLOCKSIZE,'bof');
+		old_string = fread(fid,StringsSection.uBytes,'char');
+		old_string = char(old_string)';
+
+		new_string = old_string;
+
+		% first, make sure that the new names are the exact same length as the old names
+		for j = 1:length(old_name)
+			old_name{j} = strtrim(old_name{j});
+			new_name{j} = flstring(new_name{j},length(old_name{j}));
+		end
+
+		% do the actual replacement 
+		for j = 1:length(old_name)
+			new_string = strrep(new_string,old_name{j},new_name{j});
+		end
+
+		if length(new_string) == length(old_string)
+		else
+			disp('Something went wrong: ABF2 file! Send this file to Srinivas:')
+			disp(length(new_string) == length(old_string))
+			error('mismatched string length')
+		end
+
+		% write back to file
+		bytes = char2bytes(new_string);
+
+		% go back and overwrite
+		fseek(fid,StringsSection.uBlockIndex*BLOCKSIZE,'bof');
+
+		c = fwrite(fid,bytes,'uchar',machineF);
+		      
+		if c == 0
+		    warning('Could not write to ABF file.')
+		else
+			disp('Wrote modified channel names')
+		end
+
+		fclose(fid);
+	end
+
 
 
 	function C = bytes2char(B)
@@ -163,6 +200,15 @@ end
 	end
 
 
+
+	function SectionInfo = ReadSectionInfo(fid,offset)
+		fseek(fid,offset,'bof');
+		SectionInfo.uBlockIndex=fread(fid,1,'uint32');
+		fseek(fid,offset+4,'bof');
+		SectionInfo.uBytes=fread(fid,1,'uint32');
+		fseek(fid,offset+8,'bof');
+		SectionInfo.llNumEntries=fread(fid,1,'int64');
+	end
 
 
 end % end main function 

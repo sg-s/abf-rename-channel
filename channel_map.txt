@@ -1,3 +1,5 @@
 Temp > Temperature 
-IN 6 -> lvn 
+IN 6 > lvn 
 IN 8 > pdn
+IN 5 > 5th-channel
+IN 12 > bricks
