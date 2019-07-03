@@ -4,14 +4,7 @@ Small utility to rename channels in ABF files (both v1 & v2 supported)
 
 ## Installation 
 
-The recommended way to install that is using my package manager:
-
-```matlab
-% copy and paste this into your MATLAB prompt 
-urlwrite('http://srinivas.gs/install.m','install.m');
-install -f sg-s/srinivas.gs_mtools
-install -f sg-s/abf-rename-channel
-```
+Clone this repository and stick it somewhere on your MATLAB path. 
 
 ## Usage 
 

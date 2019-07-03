@@ -22,12 +22,12 @@ function  abfRenameChannels()
 
 % check for existance of channel_map.txt
 
-file_loc = joinPath(fileparts(which(mfilename)),'channel_map.txt');
+file_loc = pathlib.join(fileparts(which(mfilename)),'channel_map.txt');
 
 assert(exist(file_loc,'file') == 2,'channel_map.txt not found')
 
 % read the channel map 
-L = lineRead(file_loc);
+L = filelib.read(file_loc);
 
 % validate the channel map 
 old_name = cell(length(L),1);
